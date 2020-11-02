@@ -1,0 +1,21 @@
+---
+title: "TidyTuesday(11/02/2020)"
+author: "Matt Leonard"
+date: "11/2/2020"
+output: html_document
+---
+
+```{r}
+library(tidytuesdayR)
+library(tidyverse)
+library(scales)
+library(lubridate)
+library(zoo)
+```
+
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2020-10-27')
+tuesdata <- tidytuesdayR::tt_load(2020, week = 44)
+```
+
