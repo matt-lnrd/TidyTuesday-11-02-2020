@@ -15,7 +15,85 @@ library(zoo)
 
 
 ```{r}
-tuesdata <- tidytuesdayR::tt_load('2020-10-27')
-tuesdata <- tidytuesdayR::tt_load(2020, week = 44)
+print(tuesdata) <- tidytuesdayR::tt_load(2020, week = 44)
 ```
+
+```{r}
+View(tuesdata)
+```
+
+```{r}
+wind_turbine <- tuesdata$`wind-turbine`
+wind_turbine
+```
+
+
+```{r}
+wind_turbine %>% 
+  count(project_name)
+```
+
+```{r}
+wind_turbine %>% 
+  count(project_name, turbine_number_in_project)
+```
+
+```{r}
+wind_turbine %>% 
+  count(project_name, turbine_number_in_project) %>% 
+  separate(turbine_number_in_project, c("turbine_number", "project_total_turbines"), "/", convert = TRUE) -> projects
+projects
+```
+
+```{r}
+projects %>% 
+  filter(project_total_turbines > 100) %>% 
+  ggplot(aes(reorder(project_name, project_total_turbines), project_total_turbines))+
+  geom_bar(stat = "identity")+
+  coord_flip()
+```
+
+```{r}
+wind_turbine %>% 
+  ggplot(aes(turbine_rated_capacity_k_w, rotor_diameter_m))+
+  geom_point(aes(color = manufacturer)) 
+```
+
+It appears that we have strong relationship between turbine capacity and rotor diameter.
+
+```{r}
+wind_turbine %>% 
+  ggplot(aes(turbine_rated_capacity_k_w, hub_height_m))+
+  geom_point(aes(color = manufacturer)) 
+```
+
+```{r}
+wind_turbine %>% 
+  ggplot(aes(turbine_rated_capacity_k_w, total_project_capacity_mw))+
+  geom_point(aes(color = manufacturer)) 
+```
+
+```{r}
+wind_turbine %>% 
+  count(manufacturer, sort = TRUE)
+```
+
+```{r}
+wind_turbine %>% 
+  count(manufacturer, sort = TRUE) %>% 
+  head(10) %>% 
+  ggplot(aes(reorder(manufacturer, n), n)) +
+  geom_bar(stat="identity") +
+  coord_flip()
+```
+
+```{r}
+reg <- lm(turbine_rated_capacity_k_w ~ rotor_diameter_m + hub_height_m + manufacturer + total_project_capacity_mw, data = wind_turbine)
+```
+
+```{r}
+summary(reg)
+```
+
+There are some really interesting results showing up here in the very (read: VERY) basic regression we're doing here. Mybe unsurprisingly, we see that both hub_height_m and rotor_diameter_m are showing up as significant predictors of turbine_rated_capacity_k_w. But there appears to be some wide variation among manufacturers as well.
 
